@@ -1,0 +1,3 @@
+Annalise Hurst
+
+My main.ipynb file contains all the code I used to create my results. To use it, open it as a Jupyter notebook and begin running the cells for the assignment. Each part of the assignment is labeled with a functions section (if applicable) and a main section (if applicable). Each main section is where you will enter your file paths and running the cells will perform the calculations and procedures to produce the results to the output folder paths specified. The titles and notes of each section will describe what each cell does in more detail. Make sure you run all of the cells in order.

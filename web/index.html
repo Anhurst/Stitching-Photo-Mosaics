@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 20px;  
+      padding-bottom: 0.25in;  
+      padding-left: 20px;  
+    }
+    div.space {  
+      padding-top: 20px;  
+      padding-right: 0px;  
+      padding-bottom: 0.25in;  
+      padding-left: 0px;  
+    }
+    div.head {  
+      background-color: #F8F9F9; 
+      padding-top: 10px;  
+      padding-right: 50px;  
+      padding-bottom: 10px;  
+      padding-left: 50px; 
+    }  
+    div.parts {  
+      background-color: #F8F9F9; 
+      padding-top: 25px;  
+      padding-right: 50px;  
+      padding-bottom: 0.25in;  
+      padding-left: 50px; 
+    } 
+    div.break {
+        height: 1px;
+        background-color: #D6DBDF
+    }
+    h1 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+    font-style: bold;
+    font-variant: normal;
+    font-weight: 600;
+    line-height: 26.4px;
+    color: #434343;
+    } 
+    h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 500;
+    color: #696969;
+    line-height: 26.4px;
+    } 
+    h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    font-style: bold;
+    font-variant: bold;
+    font-weight: 520;
+    line-height: 26.4px;
+    color: #434343;
+    height: 10px;
+    } 
+    p {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 20px;
+    color: #696969;
+    }
+    figcaption {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: 400;
+    line-height: 20px;
+    color: #434343;
+    }
+    body {
+        background-color: #F2F3F4;
+    }
+
+  </style> 
+<title>Annalise Hurst  |  CS 194-26</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+    <div class="padded">
+        <div class="head">
+            <h1 align="left">Programming Project #7: Stitching Photo Mosaics</h1>
+            <h3 align="left">by Annalise Hurst: CS 194-26 Fall 2016</h3>
+        </div>
+    <div class="space"></div>
+    <div class="parts">
+        <h1 align="left">Part 1: IMAGE WARPING and MOSAICING</h1>
+        <div class="space"></div>
+        <h2 align="left">Overview</h2>
+            <div class="break"></div>
+            <p>Image warping can be used for many different applications. In this assignment image warping will be used with homographies to warp different images into the same projective view and merge them together to create an image mosaic or panorama.</p>
+            <div class="space"></div>
+
+        <h2 align="left">Recover Homographies</h2>
+            <div class="break"></div>
+            <p>To recover a homography between two sets of corresponding points you must set up a system of equations between the point sets to solve for the eight variables needed to create the 3X3 homography matrix. This can be done using least squares to solve the following system setup.</p> 
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/homography_eq.png" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                     </tr>
+                </table>
+            </div>
+            <p>Where each ii of h_ii is its position in the final 3X3 homography matrix and the final position h_33 is the scaling factor which is equal to 1. This matrix can be applied to a point in the second view plane to calculate it's position in the first view plane.</p>         
+
+        <h2 align="left">Image Rectification</h2>
+            <div class="break"></div>
+            <p>Image rectification is a transformation process which projects images onto a common image plane. First we solve for the homography used to transform one image plane into the other. To test this out I chose the four corners of the chess board to represent the first image's plane and a square with points (0.0,0.0),(0.0,100.0)(100.0,0.0)(100.0,100.0) to represent the second plane. Using inverse warping with the homography on the first image to transform its image plane into the second image plane will show a top down view of the chess board.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/check.jpg" width="400px" />
+                        <figcaption align="middle">Chess Board</figcaption>
+                        <td align="left">
+                        <img src="img/s.jpg" width="300px" />
+                        <figcaption align="middle">Chess Board Rectified</figcaption>
+                        <td align="left">
+                        <img src="img/sc.jpg" width="200px" />
+                        <figcaption align="middle">Chess Board Rectified and Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <p>Here is another example of image rectification with a hanging picture. For this image I used the points (0.0,0.0),(0.0,500.0)(200.0,0.0)(200.0,500.0) to match the rectangular shape of the picture frame. Since the angle of the picture was very far away from the camera the rectification caused some distortion on the left side of the picture.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pic.jpg" width="400px" />
+                        <figcaption align="middle">Picture</figcaption>
+                        <td align="left">
+                        <img src="img/pc.jpg" width="400px" />
+                        <figcaption align="middle">Picture Rectified</figcaption>
+                     </tr>
+                </table>
+            </div>
+            
+            <div class="space"></div>
+
+        <h2 align="left">Blend Images Into a Mosaic</h2>
+            <div class="break"></div>
+            <p>To blend images into a mosaic all of the images must be warped into a common plane using image rectification and then blended together using linear blending. For each Mosaic I took three pictures: a left, middle and right. In each image I selected a number of corresponding points between the images to be used to calculate the homographies. I used image rectification to warp the left and right images into the image plane of the middle image. I then combined them and used linear blending over the areas where they overlapped as a function of distance from the vertical edges of the overlapped area.</p>
+            <p>Thought the general warp is successful in transforming the side images into the middle images view plane, some of the intersecting areas still appear blurry. This could be because the pivot point of the tripod I used didn't exactly line up with the point of projection of the camera which would cause the point of projection to change between images breaking the homography slightly. It could also be because most of the images were of foliage, and branches and leaves moved between the taking of each image. A final cause could be that the corresponding points chosen weren't exact enough since I was just using a mouse to click on them.</p>
+            <div class="space"></div>
+            <p> Bench <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pan.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending</figcaption>
+                        <td align="left">
+                        <img src="img/panc.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div class="space"></div>
+            <p> Field <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pan1.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending</figcaption>
+                        <td align="left">
+                        <img src="img/pan1c.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div class="space"></div>
+            <p> Gate <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pan2.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending</figcaption>
+                        <td align="left">
+                        <img src="img/pan2c.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic with Linear Blending Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div>
+
+        <h1 align="left">Part 2: FEATURE MATCHING for AUTOSTITCHING</h1>
+        <div class="space"></div>
+        <h2 align="left">Overview</h2>
+            <div class="break"></div>
+            <p>In part 1 of this assignment the corresponding points used to compute the homography had to be manually chosen. Using the algorithms and procedures in the paper <a href="http://inst.eecs.berkeley.edu/~cs194-26/fa16/Papers/MOPS.pdf"> “Multi-Image Matching using Multi-Scale Oriented Patches” by Brown et al."</a> these points can be automatically found and used to solve for the best homography between two images.</p>
+            <div class="space"></div>
+
+        <h2 align="left">Detecting Corner Features</h2>
+            <div class="break"></div>
+            <p>First, for each image possible points with good distinguishing features must be chosen. Points with the most distinguishable features are usually corners. Harris corners have the most change in energy in all directions, which makes them very good features points. To detect these Harris corners I used code provided by the instructors. Here are the left, middle, and right mosaic images with their harris corners.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/leftx.png" width="250px" />
+                        <figcaption align="middle">Left Harrison Points</figcaption>
+                        <td align="left">
+                        <img src="img/midx.png" width="250px" />
+                        <figcaption align="middle">Middle Harrison Points</figcaption>
+                        <td align="left">
+                        <img src="img/rightx.png" width="250px" />
+                        <figcaption align="middle">Right Harrison Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <p>To narrow down the amount of possible points, I implemented Adaptive Non-Maximal Suppression (ANMS). ANMS is used to choose a subset of the Harrison points which have the strongest corners but are evenly spread out across the image. In order to do that, for each point the smallest distance to a point with a stronger Harrison Corner value is found. Then all of the points are sorted based on this distance in decreasing order, and the top N are chosen to be kept. In my case N = 500. Here are the same images as above with their resulting points after applying ANMS.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/leftx1.png" width="250px" />
+                        <figcaption align="middle">Left ANMS Points</figcaption>
+                        <td align="left">
+                        <img src="img/midx1.png" width="250px" />
+                        <figcaption align="middle">Middle ANMS Points</figcaption>
+                        <td align="left">
+                        <img src="img/rightx1.png" width="250px" />
+                        <figcaption align="middle">Right ANMS Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div>
+
+        <h2 align="left">Extracting Feature Descriptors</h2>
+            <div class="break"></div>
+            <p>Now that a good set of possible points for matching is found, a feature descriptor for each point must be made in order to compare the points between two images. These features descriptors are (8,8) matrices found by subsampling and normalizing the surrounding 40X40 area of each pixel. To avoid aliasing the subsampling is done with interpolation of surrounding pixels for each subsampled pixel. These feature descriptors let a point in one image be compared to a point in another in a way that allows for some random noise or different lighting to occur and still result in similar feature descriptors.</p>
+        
+            <div class="space"></div> 
+
+        <h2 align="left">Feature Matching</h2>
+            <div class="break"></div>
+            <p>Using the found feature descriptors, points in one image can be matched up with points in another image. To do this I implemented feature matching. For each point in the first image I calculated its SSD from every other point in the second image using a given dist2 function. I then sorted these distances from smallest to largest to find the first and second nearest neighbor for each point in the first image. To decide whether a point and its nearest neighbor matched or not, I used a ratio threshold for "dist_1NN/dist_2NN &lt; threshold", where dist_1NN is the nearest neighbor and dist_2NN is the second nearest neighbor. I chose a threshold of 0.2. Here are the pairs of images and their corresponding match points.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/leftxm.png" width="350px" />
+                        <figcaption align="middle">Left Matched With Middle Points</figcaption>
+                        <td align="left">
+                        <img src="img/midxl.png" width="350px" />
+                        <figcaption align="middle">Middle Matched With Left Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/rightxm.png" width="350px" />
+                        <figcaption align="middle">Right Matched With Middle Points</figcaption>
+                        <td align="left">
+                        <img src="img/midxr.png" width="350px" />
+                        <figcaption align="middle">Middle Matched With Right Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div>
+
+        <h2 align="left">RANSAC</h2>
+            <div class="break"></div>
+            <p>To refine these matches I used RAndom SAmple Consensus (RANSAC) to identify and remove outliers. To do this I ran the RANSAC loop algorithm 1000 times.</p>
+            <div class="space"></div>
+            <p>RANSAC loop:</p>
+            <p>Select four feature pairs (at random)</p>
+            <p>Compute homography H (exact)</p>
+            <p>Compute inliers where SSD(pi’, H pi) &lt; ε</p>
+            <p>Keep largest set of inliers</p>
+            <p>Re-compute least-squares H estimate on all of the inliers</p>
+            <div class="space"></div>
+            <p>Here are the image pairs with their matching points after applying RANSAC.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/leftxmr.png" width="350px" />
+                        <figcaption align="middle">Left Matched With Middle Points</figcaption>
+                        <td align="left">
+                        <img src="img/midxlr.png" width="350px" />
+                        <figcaption align="middle">Middle Matched With Left Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/rightxmr.png" width="350px" />
+                        <figcaption align="middle">Right Matched With Middle Points</figcaption>
+                        <td align="left">
+                        <img src="img/midxrr.png" width="350px" />
+                        <figcaption align="middle">Middle Matched With Right Points</figcaption>
+                     </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div>
+
+        <h2 align="left">Produce Mosaic</h2>
+            <div class="break"></div>
+            <p>Finally using the remaining matching points and my Mosaic producing code from part 1, I produced the following automated mosaics. Here are the Automatic Mosaics compared to the Manual ones. There are many places where the automatic mosaics produced better results.</p>
+            <p> Bench <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/autopan1.jpg" width="550px" />
+                        <figcaption align="middle">Automatic Mosaic Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/panc.jpg" width="550px" />
+                        <figcaption align="middle">Manual Mosaic Cropped</figcaption>
+                    </tr>
+                </table>
+            </div>
+            <div class="space"></div>
+            <p> Field <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/autopan2.jpg" width="550px" />
+                        <figcaption align="middle">Automatic Mosaic Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pan1c.jpg" width="550px" />
+                        <figcaption align="middle">Manual Mosaic Cropped</figcaption>
+                    </tr>
+                </table>
+            </div>
+            <div class="space"></div>
+            <p> Gate <p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/autopan3.jpg" width="550px" />
+                        <figcaption align="middle">Automatic Mosaic Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/pan2c.jpg" width="550px" />
+                        <figcaption align="middle">Manual Mosaic Cropped</figcaption>
+                    </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div> 
+
+        <h2 align="left">Panorama Recognition</h2>
+            <div class="break"></div>
+            <p>To automate the process even further I implemented Panorama recognition. For this a group of images are imputed, some of which can be used to form panoramas, some of which can not. In order to determine which pairs of images were compatible, I followed this paper  <a href="http://www.cs.ubc.ca/~lowe/papers/brown03.pdf"> “Recognising Panoramas” by M. Brown and D.G.Lowe"</a>  and calculated the number of matching points resulting from feature matching (nf) and the number of matching points resulting from RANSAC (ni) for each pair of images in the group. In order for two images to to qualify as a panoramic match they must satisfy this condition; ni > 5.9 + 0.22nf. Using this condition I checked each of the image pairs and applied my earlier code for panoramic stitching on those that matched. Here is the group of images I input into the algorithm and beneath them are the resulting panoramas.</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/m2.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                        <td align="left">
+                        <img src="img/m.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                        <td align="left">
+                        <img src="img/mid.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/m1.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                        <td align="left">
+                        <img src="img/r.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                        <td align="left">
+                        <img src="img/l1.jpg" width="265px" />
+                        <figcaption align="middle"></figcaption>
+                     </tr>
+                </table>
+            </div>
+            <p>What I learned</p>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/panr0.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic 1 Cropped</figcaption>
+                     </tr>
+                </table>
+            </div>
+            <div align="left">
+                <table style="width=100%">
+                    <tr>
+                        <td align="left">
+                        <img src="img/panr3.jpg" width="550px" />
+                        <figcaption align="middle">Mosaic 2 Cropped</figcaption>
+                    </tr>
+                </table>
+            </div>
+        
+            <div class="space"></div> 
+
+        <h2 align="left">Summary</h2>
+            <div class="break"></div>
+            <p>The coolest thing I learned from part 1 of this project was being able to rectify images. Being able to take a picture from one angle and transform it into another viewing angle gives you a lot more information and can be used for so many different applications.</p>
+            <p>Being able to implement feature matching was the coolest part of part 2. After having to manually input all of the points, and not being able to be precise with them it was very rewarding to see the feature matching algorithm take a bunch of corners and output point matches. Which was even more satisfying when it produced better mosaics then the manually selected points.</p>
+        
+            <div class="space"></div>
+                
+    </div>
+
+</div>
+</body>
+</html>
+
+
+
+
